@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "mlops-course"
+version = "0.1.0"
+description = "repo for mlops course"
+authors = ["Ivan Yakunin <ykunin.ia@phystech.edu>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "~3.10"
+gdown = "^4.7.1"
+pandas = "^2.1.1"
+xgboost = "^2.0.0"
+scikit-learn = "^1.3.1"
+pre-commit = "^3.5.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
