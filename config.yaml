@@ -7,5 +7,6 @@ test:
 model_name: model.json
 result_file: Class_pred.csv
 label_column: Class
+dir_data: data
 drop_column:
   - id
