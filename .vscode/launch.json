@@ -1,0 +1,42 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "infer file",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                "--filename",
+                "creditcard_train.csv",
+                "--model_name",
+                "model.json",
+                "--result_file",
+                "Class_pred2.csv",
+                "--download_files",
+                "False"
+            ]
+        },
+        {
+            "name": "train file",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": [
+                "--filename",
+                "creditcard_train.csv",
+                "--model_name",
+                "model.json",
+                "--download_files",
+                "False"
+            ]
+        }
+    ]
+}
