@@ -2,6 +2,7 @@ import os
 import warnings
 from pathlib import Path
 
+import fire
 import gdown
 import pandas as pd
 import yaml
@@ -27,6 +28,7 @@ def get_data(url, filename, dir):
 def test(model, X_test, y_test, path_result):
     y_pred = model.predict(X_test)
     pd.DataFrame({"y_pred": y_pred}).to_csv(path_result)
+    print(f"The prediction is saved to a file {path_result}")
 
     recall = round(recall_score(y_test, y_pred), 3)
     precision = round(precision_score(y_test, y_pred), 3)
@@ -34,21 +36,24 @@ def test(model, X_test, y_test, path_result):
     print(f"Recall: {recall}, Precision: {precision}, F1-score: {f_1}")
 
 
-def main():
+def main(
+    filename: str = "creditcard_train.csv",
+    model_name: str = "model.json",
+    result_file: str = "Class_pred.csv",
+    download_files: bool = True,
+):
     with open("config.yaml", "r") as file:
         data_load = yaml.safe_load(file)
 
     url = data_load["test"]["url"]
-    filename = data_load["test"]["filename"]
     dir_data = data_load["dir_data"]
-    model_name = data_load["model_name"]
-    result_file = data_load["result_file"]
     label_column = data_load["label_column"]
     drop_column = data_load["drop_column"]
 
     test_path = Path.cwd() / dir_data / filename
     path_result = Path.cwd() / dir_data / result_file
-    get_data(url, filename, dir_data)
+    if download_files:
+        get_data(url, filename, dir_data)
 
     test_data = pd.read_csv(test_path)
     drop_column.append(label_column)
@@ -64,4 +69,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    fire.Fire(main)

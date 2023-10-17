@@ -159,8 +159,8 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-creditcard_test.csv
-creditcard_train.csv
+creditcard_test.csv*
+creditcard_train.csv*
 Class_pred.csv
 model.json
 .venv/

@@ -2,6 +2,7 @@ import os
 import warnings
 from pathlib import Path
 
+import fire
 import gdown
 import pandas as pd
 import yaml
@@ -27,19 +28,22 @@ def train(model, data, **kwargs):
     return model.fit(data)
 
 
-def main():
+def main(
+    filename: str = "creditcard_train.csv",
+    model_name: str = "model.json",
+    download_files: bool = True,
+):
     with open("config.yaml", "r") as file:
         data_load = yaml.safe_load(file)
 
     url = data_load["train"]["url"]
-    filename = data_load["train"]["filename"]
     dir_data = data_load["dir_data"]
-    model_name = data_load["model_name"]
     label_column = data_load["label_column"]
     drop_column = data_load["drop_column"]
 
     train_path = Path.cwd() / dir_data / filename
-    get_data(url, filename, dir_data)
+    if download_files:
+        get_data(url, filename, dir_data)
 
     train_data = pd.read_csv(train_path)
     drop_column.append(label_column)
@@ -56,4 +60,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    fire.Fire(main)
