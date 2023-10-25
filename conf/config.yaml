@@ -1,0 +1,16 @@
+data:
+  download_files: True
+  train_url: https://drive.google.com/uc?id=171j-K5YA6taPHu34MbwiQ3W2LQkCJ3Qc
+  test_url: https://drive.google.com/uc?id=1LyJRgk1prXworljO7bzgrupAEnZsuwlg
+  train_filename: creditcard_train.csv
+  test_filename: creditcard_test.csv
+  label_column: Class
+  dir_data: data
+  seed: 42
+  drop_column:
+    - id
+
+model:
+  name: XGBoost
+  weight_file: model.json
+  pred_file: Class_pred.csv
