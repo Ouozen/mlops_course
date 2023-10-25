@@ -12,12 +12,8 @@
             "console": "integratedTerminal",
             "justMyCode": true,
             "args": [
-                "--filename",
-                "creditcard_train.csv",
-                "--model_name",
+                "--weight_file",
                 "model.json",
-                "--result_file",
-                "Class_pred2.csv",
                 "--download_files",
                 "False"
             ]
@@ -30,12 +26,10 @@
             "console": "integratedTerminal",
             "justMyCode": true,
             "args": [
-                "--filename",
-                "creditcard_train.csv",
-                "--model_name",
-                "model.json",
                 "--download_files",
-                "False"
+                "True",
+                "--weight_file",
+                "model.json"
             ]
         }
     ]

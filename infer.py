@@ -4,25 +4,42 @@ from pathlib import Path
 
 import fire
 import gdown
+import hydra
 import pandas as pd
-import yaml
+from hydra.core.config_store import ConfigStore
 from sklearn.metrics import f1_score, precision_score, recall_score
 from xgboost import XGBClassifier
+
+from config import Params
 
 
 warnings.simplefilter(
     action="ignore", category=FutureWarning
 )  # ignore only FutureWarning
 
+cs = ConfigStore.instance()
+cs.store(name="params", node=Params)
 
-def get_data(url, filename, dir):
-    gdown.download(url, filename, quiet=False)
 
-    Path(dir).mkdir(exist_ok=True)
-    cur_path = Path.cwd() / filename
-    dest_path = Path.cwd() / dir / filename
+@hydra.main(config_path="conf", config_name="config", version_base="1.3")
+def download_data(cfg: Params):
+    gdown.download(cfg["data"]["test_url"], cfg["data"]["test_filename"], quiet=False)
+
+    Path("data").mkdir(exist_ok=True)
+    cur_path = Path.cwd() / cfg["data"]["test_filename"]
+    dest_path = Path.cwd() / "data" / cfg["data"]["test_filename"]
     dest_path.write_bytes(cur_path.read_bytes())
     os.remove(cur_path)
+
+
+@hydra.main(config_path="conf", config_name="config", version_base="1.3")
+def split_data(cfg: Params) -> None:
+    df = pd.read_csv(Path.cwd() / "data" / cfg["data"]["test_filename"])
+    drop_column = cfg["data"]["drop_column"]
+    drop_column.append(cfg["data"]["label_column"])
+    X, y = (df.drop(drop_column, axis=1), df[cfg["data"]["label_column"]])
+    X.to_csv("./data/X_test.csv", index=False)
+    y.to_csv("./data/y_test.csv", index=False)
 
 
 def test(model, X_test, y_test, path_result):
@@ -37,36 +54,24 @@ def test(model, X_test, y_test, path_result):
 
 
 def main(
-    filename: str = "creditcard_train.csv",
-    model_name: str = "model.json",
-    result_file: str = "Class_pred.csv",
     download_files: bool = True,
+    weight_file: str = "model.json",
+    pred_file: str = "Class_pred.csv",
 ):
-    with open("config.yaml", "r") as file:
-        data_load = yaml.safe_load(file)
-
-    url = data_load["test"]["url"]
-    dir_data = data_load["dir_data"]
-    label_column = data_load["label_column"]
-    drop_column = data_load["drop_column"]
-
-    test_path = Path.cwd() / dir_data / filename
-    path_result = Path.cwd() / dir_data / result_file
     if download_files:
-        get_data(url, filename, dir_data)
+        download_data()
 
-    test_data = pd.read_csv(test_path)
-    drop_column.append(label_column)
-    X_test, y_test = (
-        test_data.drop(drop_column, axis=1),
-        test_data[label_column],
-    )
+    split_data()
+    X_test = pd.read_csv("./data/X_test.csv")
+    y_test = pd.read_csv("./data/y_test.csv")
 
     model = XGBClassifier()
-    model.load_model(Path.cwd() / dir_data / model_name)
+    model.load_model(Path.cwd() / "data" / weight_file)
 
-    test(model, X_test, y_test, path_result)
+    test(model, X_test, y_test, Path.cwd() / "data" / pred_file)
 
 
 if __name__ == "__main__":
-    fire.Fire(main)
+    fire.Fire(
+        command="main --download_files False --weight_file model.json --pred_file Class_pred.csv"
+    )
