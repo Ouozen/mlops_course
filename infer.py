@@ -5,6 +5,7 @@ from pathlib import Path
 import fire
 import gdown
 import hydra
+import mlflow
 import pandas as pd
 from hydra.core.config_store import ConfigStore
 from sklearn.metrics import f1_score, precision_score, recall_score
@@ -43,6 +44,8 @@ def split_data(cfg: Params) -> None:
 
 
 def test(model, X_test, y_test, path_result):
+    mlflow.set_tracking_uri("http://172.21.0.13:5000")
+    mlflow.set_experiment(experiment_name="mlops_course")
     y_pred = model.predict(X_test)
     pd.DataFrame({"y_pred": y_pred}).to_csv(path_result)
     print(f"The prediction is saved to a file {path_result}")
@@ -50,6 +53,12 @@ def test(model, X_test, y_test, path_result):
     recall = round(recall_score(y_test, y_pred), 3)
     precision = round(precision_score(y_test, y_pred), 3)
     f_1 = round(f1_score(y_test, y_pred), 3)
+
+    with mlflow.start_run():
+        mlflow.log_metric("recall", recall)
+        mlflow.log_metric("precision", precision)
+        mlflow.log_metric("f_1", f_1)
+
     print(f"Recall: {recall}, Precision: {precision}, F1-score: {f_1}")
 
 

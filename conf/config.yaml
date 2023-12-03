@@ -14,3 +14,10 @@ model:
   name: XGBoost
   weight_file: model.json
   pred_file: Class_pred.csv
+
+s3:
+  key: key # fill
+  pass: pass # fill
+  uri: uri # fill
+mlflow:
+  uri: http://172.21.0.13:5000

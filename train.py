@@ -5,6 +5,7 @@ from pathlib import Path
 import fire
 import gdown
 import hydra
+import mlflow
 import pandas as pd
 from hydra.core.config_store import ConfigStore
 from xgboost import XGBClassifier
@@ -41,18 +42,29 @@ def split_data(cfg: Params) -> None:
     y.to_csv("./data/y_train.csv", index=False)
 
 
-def main(download_files: bool = False, weight_file: str = "model.json") -> None:
-    if download_files:
-        download_data()
+@hydra.main(config_path="conf", config_name="config", version_base="1.3")
+def train(cfg: Params) -> None:
+    os.environ["AWS_ACCESS_KEY_ID"] = cfg["s3"]["key"]
+    os.environ["AWS_SECRET_ACCESS_KEY"] = cfg["s3"]["pass"]
+    os.environ["MLFLOW_S3_ENDPOINT_URL"] = cfg["s3"]["uri"]
 
-    split_data()
     X_train = pd.read_csv("./data/X_train.csv")
     y_train = pd.read_csv("./data/y_train.csv")
 
-    model = XGBClassifier()
-    model.fit(X_train, y_train)
-    model.save_model(Path.cwd() / "data" / weight_file)
+    mlflow.set_tracking_uri(cfg["mlflow"]["uri"])
+    mlflow.set_experiment(experiment_name="mlops_course")
+    mlflow.xgboost.autolog()
+    with mlflow.start_run():
+        model = XGBClassifier()
+        model.fit(X_train, y_train)
+    model.save_model(Path.cwd() / "data" / cfg["model"]["weight_file"])
 
+
+def main(download_files: bool = False, weight_file: str = "model.json") -> None:
+    if download_files:
+        download_data()
+    split_data()
+    train()
     print("The model has been successfully trained!")
 
 
